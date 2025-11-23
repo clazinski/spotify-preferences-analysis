@@ -9,7 +9,7 @@ logger.setLevel(logging.INFO)
 
 def lambda_handler(event, context):
     """
-    Lambda principal para extração de dados do Spotify com OAuth
+    Main Lambda for Spotify data extraction with OAuth
     """
     try:
         spotify = SpotifyOAuthClient()
@@ -24,7 +24,7 @@ def lambda_handler(event, context):
         user_profile = spotify.get_user_profile()
         user_id = user_profile['id']
         
-        logger.info(f"Coletando dados para usuário: {user_id}")
+        logger.info(f"Collecting data for user: {user_id}")
         
         datasets = {
             'user_profile': user_profile,
@@ -56,24 +56,24 @@ def lambda_handler(event, context):
                     Body=json.dumps(data, ensure_ascii=False, default=str),
                     ContentType='application/json'
                 )
-                logger.info(f"Dataset {dataset_name} salvo em s3://{bucket_name}/{s3_key}")
+                logger.info(f"Dataset {dataset_name} saved to s3://{bucket_name}/{s3_key}")
         
         return {
             'statusCode': 200,
             'body': json.dumps({
-                'message': 'Dados do usuário extraídos com sucesso',
+                'message': 'User data successfully extracted',
                 'user_id': user_id,
-                'datasets_extraidos': list(datasets.keys()),
+                'extracted_datasets': list(datasets.keys()),
                 'timestamp': timestamp
             })
         }
         
     except Exception as e:
-        logger.error(f"Erro na execução: {str(e)}")
+        logger.error(f"Execution error: {str(e)}")
         return {
             'statusCode': 500,
             'body': json.dumps({
-                'error': 'Falha na extração de dados do usuário',
+                'error': 'Failed to extract user data',
                 'details': str(e)
             })
         }
