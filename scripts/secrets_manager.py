@@ -16,7 +16,7 @@ class SecretsManager:
         )
     
     def get_secret(self, secret_name):
-        """Recupera secret do AWS Secrets Manager"""
+        """Retrieve secret from AWS Secrets Manager"""
         try:
             get_secret_value_response = self.client.get_secret_value(
                 SecretId=secret_name
@@ -32,20 +32,20 @@ class SecretsManager:
                 return json.loads(decoded_binary_secret)
                 
         except ClientError as e:
-            logger.error(f"Erro ao acessar segredo {secret_name}: {e.response['Error']['Code']}")
+            logger.error(f"Error accessing secret {secret_name}: {e.response['Error']['Code']}")
             raise e
     
     def update_secret(self, secret_name, secret_dict):
-        """Atualiza um secret existente"""
+        """Update an existing secret"""
         try:
             self.client.update_secret(
                 SecretId=secret_name,
                 SecretString=json.dumps(secret_dict)
             )
-            logger.info(f"Segredo {secret_name} atualizado com sucesso")
+            logger.info(f"Secret {secret_name} successfully updated")
             return True
         except ClientError as e:
-            logger.error(f"Erro ao atualizar segredo: {str(e)}")
+            logger.error(f"Error updating secret: {str(e)}")
             return False
 
 secrets_manager = SecretsManager()

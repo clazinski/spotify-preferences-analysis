@@ -12,16 +12,16 @@ class SpotifyAuthSetup:
         self._load_client_credentials()
     
     def _load_client_credentials(self):
-        """Carrega client_id e client_secret do Secrets Manager"""
+        """Load client_id and client_secret from Secrets Manager"""
         try:
             self.secrets = self.secrets_manager.get_secret("spotify/api-credentials")
-            print("Credenciais do cliente carregadas")
+            print("Client credentials loaded")
         except Exception as e:
-            print(f"Erro ao carregar credenciais: {e}")
+            print(f"Error loading credentials: {e}")
             raise
     
     def get_authorization_url(self):
-        """Gera URL de autorização para usuário"""
+        """Generate authorization URL for user"""
         auth_url = "https://accounts.spotify.com/authorize"
         
         params = {
@@ -42,7 +42,7 @@ class SpotifyAuthSetup:
         return f"{auth_url}?{urlencode(params)}"
     
     def exchange_code_for_token(self, authorization_code):
-        """Troca authorization code por access e refresh tokens"""
+        """Exchange authorization code for access and refresh tokens"""
         token_url = "https://accounts.spotify.com/api/token"
         
         data = {
@@ -58,23 +58,23 @@ class SpotifyAuthSetup:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            print(f"Erro ao trocar code por token: {e}")
+            print(f"Error exchanging code for token: {e}")
             raise
     
     def setup_initial_tokens(self):
-        """Fluxo completo de setup inicial"""
+        """Complete initial setup flow"""
         print("=== Spotify OAuth Setup ===")
         
         auth_url = self.get_authorization_url()
-        print(f"\n1. Abra esta URL no seu navegador:\n{auth_url}")
+        print(f"\n1. Open this URL in your browser:\n{auth_url}")
         
         webbrowser.open(auth_url)
         
-        print("\n2. Após autorizar, você será redirecionado.")
-        print("   Copie o parâmetro 'code' da URL de redirecionamento.")
-        authorization_code = input("\n3. Cole o authorization code aqui: ").strip()
+        print("\n2. After authorizing, you will be redirected.")
+        print("   Copy the 'code' parameter from the redirect URL.")
+        authorization_code = input("\n3. Paste the authorization code here: ").strip()
         
-        print("\n4. Obtendo tokens...")
+        print("\n4. Retrieving tokens...")
         token_data = self.exchange_code_for_token(authorization_code)
         
         self.secrets.update({
@@ -86,19 +86,19 @@ class SpotifyAuthSetup:
         success = self.secrets_manager.update_secret("spotify/api-credentials", self.secrets)
         
         if success:
-            print("Tokens salvos com sucesso no Secrets Manager")
+            print("Tokens successfully saved to Secrets Manager")
             print(f"   - Access Token: {token_data['access_token'][:20]}...")
             print(f"   - Refresh Token: {token_data['refresh_token'][:20]}...")
-            print(f"   - Expira em: {token_data['expires_in']} segundos")
+            print(f"   - Expires in: {token_data['expires_in']} seconds")
         else:
-            print("Erro ao salvar tokens no Secrets Manager")
+            print("Error saving tokens to Secrets Manager")
 
 def main():
     try:
         setup = SpotifyAuthSetup()
         setup.setup_initial_tokens()
     except Exception as e:
-        print(f"Setup falhou: {e}")
+        print(f"Setup failed: {e}")
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 # Secrets Manager - Agora com refresh token
 resource "aws_secretsmanager_secret" "spotify_credentials" {
   name = "spotify/api-credentials"
-  description = "Credenciais OAuth da API do Spotify"
+  description = "Credentials OAuth from Spotify APIs"
 
   tags = {
     Project     = "spotify-pipeline"
@@ -18,7 +18,6 @@ resource "aws_secretsmanager_secret_version" "initial_creds" {
   })
 }
 
-# Adicionar policy para atualizar secrets (para refresh tokens)
 resource "aws_iam_policy" "secrets_manager_update_policy" {
   name = "SpotifySecretsManagerUpdatePolicy"
   
